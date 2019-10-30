@@ -3,13 +3,9 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 
 const hubsRouter = require('./hubs/hubs-router.js');
+const logger = require("./api/logger-middleware")
 
 const server = express();
-
-const logger = (req, res, next) => {
-  console.log(`MY CUSTOM LOGGER: [${new Date().toISOString()}] ${req.method} to ${req.path} from ${req.get('host')}`)
-  next();
-}
 
 const gateKeeper = (req, res, next) => {
   // Data can come in the body, url parameters, query string, headers
@@ -25,6 +21,15 @@ const gateKeeper = (req, res, next) => {
   }
 }
 
+const doubler = (req, res, next) => {
+  // Everything coming from the URL is a string
+  const number = +req.query.number || 1;
+
+  req.doubled = number * 2;
+
+  next();
+}
+
 // Global Middleware
 server.use(helmet()); // Third party
 server.use(gateKeeper);
@@ -34,13 +39,8 @@ server.use(morgan('dev')); // Third party
 
 server.use('/api/hubs', hubsRouter);
 
-server.get('/', (req, res) => {
-  const nameInsert = (req.name) ? ` ${req.name}` : '';
-
-  res.send(`
-    <h2>Lambda Hubs API</h2>
-    <p>Welcome${nameInsert} to the Lambda Hubs API</p>
-    `);
+server.get('/', doubler, (req, res) => {
+  res.status(200).json({ number: req.doubled })
 });
 
 module.exports = server;

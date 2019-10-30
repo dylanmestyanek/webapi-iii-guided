@@ -21,5 +21,6 @@ Well, almost everything. :+)
 ## Types (Based on how it's been used)
 
 - Global (Runs on EVERY request)
+- Local (Used for a set of routes only)
 
 Order matters, it goes TOP to BOTTOM && LEFT to RIGHT
